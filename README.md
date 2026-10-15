@@ -1,5 +1,6 @@
 <p align="center">
-  <h1 align="center">🛡️ AegisAI</h1>
+  <img src=".github/assets/logo.png" width="160" alt="AegisAI Logo">
+  <h1 align="center">AegisAI</h1>
   <p align="center">
     <strong>Kubernetes-Native Security Control Plane for AI Workloads, Autonomous Agents & Tool-Enabled LLMs</strong>
   </p>
