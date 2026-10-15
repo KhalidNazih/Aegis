@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">AegisAI</h1>
+  <h1 align="center">🛡️ AegisAI</h1>
   <p align="center">
     <strong>Kubernetes-Native Security Control Plane for AI Workloads, Autonomous Agents & Tool-Enabled LLMs</strong>
   </p>
@@ -8,7 +8,7 @@
     <a href="https://kubernetes.io"><img src="https://img.shields.io/badge/Kubernetes-1.28+-326CE5?style=flat&logo=kubernetes&logoColor=white" alt="Kubernetes"></a>
     <a href="https://book.kubebuilder.io"><img src="https://img.shields.io/badge/Built%20with-Kubebuilder-000000?style=flat" alt="Kubebuilder"></a>
     <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
-    <img src="https://img.shields.io/badge/Release-v0.1.0--alpha-orange" alt="Release">
+    <a href="https://github.com/KhalidNazih/aegisai/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-success" alt="Release"></a>
     <a href="#contributing"><img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg" alt="PRs Welcome"></a>
   </p>
 </p>
@@ -17,27 +17,24 @@
 
 ## Overview
 
-**AegisAI** is an open-source, Kubernetes-native security control plane engineered specifically for autonomous AI agents, tool-enabled assistants, RAG pipelines, and LLM inference workloads.
+**AegisAI** is a Kubernetes-native security control plane engineered specifically for autonomous AI agents, tool-enabled assistants, RAG pipelines, and LLM inference workloads.
 
-As AI workloads transition from static prompt-response scripts into autonomous agents running inside Kubernetes clusters, they cross infrastructure and application security boundaries:
-* They make arbitrary tool calls (e.g., Model Context Protocol / MCP, internal APIs).
-* They query external SaaS platforms (GitHub, Jira, Slack).
-* They access sensitive cloud resources (S3, RDS, Secrets).
-* They execute dynamic shell commands or generate code.
+When autonomous agents run inside Kubernetes, traditional security controls fall short:
+* **Kubernetes RBAC** only regulates internal cluster objects, leaving external tool operations and model APIs unmonitored.
+* **NetworkPolicy** restricts IP/CIDR blocks, but cannot evaluate or filter application-level tool actions.
+* **Cloud IAM** grants static permissions without visibility into dynamic agent prompt executions or autonomous tool calls.
 
-Standard Kubernetes primitives (**RBAC**, **NetworkPolicy**) only observe internal cluster calls or IP endpoints—they are blind to application-level AI tool operations. Cloud IAM and Secret managers have no context on agent autonomy.
-
-> **AegisAI bridges this gap.** It introduces a unified, declarative **Security Contract** (`AIWorkloadPolicy`) that binds Kubernetes RBAC, egress NetworkPolicies, admission constraints, and tool authorization under a single, deny-by-default control plane.
+AegisAI bridges this gap by introducing a unified **Security Contract** (`AIWorkloadPolicy`). It orchestrates Kubernetes RBAC, egress network boundaries, admission constraints, Model Context Protocol (MCP) tool gateways, and eBPF runtime telemetry under a single, deny-by-default control plane.
 
 ---
 
-## Core Capabilities
+## Core Features
 
-* **Declarative AI Security Contracts:** Define exactly what models, tools, cloud services, and network destinations an agent is authorized to access via a single Kubernetes CRD.
-* **Deny-by-Default Tool Authorization:** Enforce strict capability boundaries for tool-enabled agents (MCP-compatible). If an action is not explicitly approved, it is denied.
-* **Automated Egress & Network Containment:** Synthesizes and enforces strict network boundaries to prevent data exfiltration to unauthorized LLMs or API endpoints.
-* **eBPF-Powered Runtime Telemetry:** Correlates low-level Linux process and network events back to specific AI workload identities.
-* **GitOps-Centric Security Workflow:** Integrates seamlessly with GitOps tools like Argo CD. Policy adjustments require human engineer approval via standard pull requests—preventing unauthorized autonomous capability escalation.
+* 🛡️ **Unified Security Contract:** Declare the entire operational boundary of an AI workload in a single Kubernetes manifest: approved MCP tools, cloud APIs, Kubernetes verbs, secrets, and egress domains.
+* 🔒 **Tool & MCP Authorization Gateway:** Real-time interception and filtering of Model Context Protocol (MCP) tool calls. Non-approved actions (such as unauthorized repository deletions or administrative API calls) are blocked before reaching target services.
+* 🌐 **Automated Egress Synthesis:** Automatically generates and reconciles Kubernetes `NetworkPolicy` objects based on declared egress domains, restricting compromised or hallucinating agents from exfiltrating data to unapproved endpoints.
+* ⚡ **eBPF Runtime Threat Telemetry:** Leverages Tetragon eBPF sensors to monitor container process executions, socket connections, and namespace escapes, correlating low-level Linux telemetry directly to specific AI workload identities.
+* 🔄 **Continuous Drift Detection:** Continuously compares the declared policy against actual cluster configuration. Unapproved changes made out-of-band are flagged, alerted, and automatically remediated.
 
 ---
 
@@ -62,30 +59,30 @@ Standard Kubernetes primitives (**RBAC**, **NetworkPolicy**) only observe intern
                                                        (GitOps Drift Detection)
 ```
 
-### Core Design Principles
-* **Reuse, Do Not Replace:** Works natively alongside Kyverno, NetworkPolicies, RBAC, and Tetragon.
-* **Deny-by-Default:** Any tool, API, or network destination not explicitly approved in policy is blocked.
-* **Zero Autonomous Escalation:** An AI agent cannot authorize itself. Authority changes require explicit engineer review via GitOps (Argo CD).
-* **Explainable Decisions:** Every block or allow emits machine-readable and human-verifiable security decisions.
+### Design Principles
+* **Reuse, Do Not Replace:** Integrates directly with Kyverno, NetworkPolicies, RBAC, and Tetragon.
+* **Deny-by-Default:** Any tool, cloud capability, or egress destination not explicitly declared in policy is blocked.
+* **Zero Autonomous Escalation:** An AI agent cannot grant itself permissions. All capability updates require human engineer approval via GitOps (Argo CD).
+* **Explainable Decisions:** Every allow, block, or containment action produces structured audit logs and Prometheus metrics.
 
 ---
 
 ## Operational Modes
 
-AegisAI supports four granular operational modes configured per policy:
+Each `AIWorkloadPolicy` operates in one of four granular modes:
 
 | Mode | Purpose | Enforcement Action | Use Case |
 | :--- | :--- | :--- | :--- |
-| **`Detect`** | Discovery & Telemetry | Observe and log only | Auditing existing agents to discover needed permissions |
+| **`Detect`** | Discovery & Telemetry | Observe and log only | Auditing existing agents to discover baseline requirements |
 | **`Enforce`** | Active Protection | Blocks unauthorized tools & traffic | Production environments requiring least-privilege security |
-| **`Review`** | Change Evaluation | Simulates policy evaluation | Testing new agent capabilities in staging |
+| **`Review`** | Change Evaluation | Simulates policy evaluation | Staging environments evaluating new capabilities |
 | **`Remediate`** | Automated Drift Fix | Resets unauthorized cluster drift | Self-healing cluster security boundaries |
 
 ---
 
 ## The Security Contract: AIWorkloadPolicy
 
-Here is an example of an `AIWorkloadPolicy` declaring approved capabilities for an autonomous CI/CD agent:
+Below is an example of an `AIWorkloadPolicy` declaring approved capabilities for an autonomous CI/CD agent:
 
 ```yaml
 apiVersion: security.aegisai.io/v1alpha1
@@ -98,7 +95,6 @@ spec:
   workloadName: "ci-cd-agent"
   operationalMode: "Enforce"
 
-  # Approved capabilities
   capabilities:
     tools:
       github:
@@ -109,6 +105,12 @@ spec:
     kubernetes:
       - "pods.get"
       - "pods.list"
+    cloud:
+      aws:
+        - "s3:GetObject"
+    secrets:
+      - "github-token"
+      - "jira-api-key"
     network:
       egress:
         - "api.github.com"
@@ -117,89 +119,84 @@ spec:
 
 ---
 
-## Getting Started
+## Installation & Deployment
 
-### Prerequisites
-* Kubernetes cluster `v1.28+` (local Kind/Minikube or managed EKS/GKE/AKS)
-* `kubectl` configured with cluster administrator access
+### Production Cluster Deployment
 
----
-
-### Option A: Deploy to a Kubernetes Cluster
-
-You can deploy AegisAI directly into any Kubernetes cluster using standard manifests:
-
-#### 1. Install the CRDs
-```bash
-kubectl apply -k https://github.com/KhalidNazih/aegisai.git/config/crd?ref=main
-```
-
-#### 2. Deploy the AegisAI Controller Manager
+#### 1. Install CRDs and Controller via Kustomize
 ```bash
 kubectl apply -k https://github.com/KhalidNazih/aegisai.git/config/default?ref=main
 ```
 
-#### 3. Verify the Deployment
+#### 2. Verify Operator Health
 ```bash
 kubectl get pods -n aegis-system
 ```
-You should see `aegisai-controller-manager` running and healthy.
 
-#### 4. Apply Your First Policy
+Expected output:
+```text
+NAME                                         READY   STATUS    RESTARTS   AGE
+aegisai-controller-manager-7d8b598b9-x2k4l   2/2     Running   0          45s
+```
+
+#### 3. Apply a Policy
 ```bash
 kubectl apply -f config/samples/security_v1alpha1_aiworkloadpolicy.yaml
 ```
 
-Verify the policy status:
+#### 4. Inspect Policy Status
 ```bash
 kubectl get aiworkloadpolicy -A
-kubectl describe aiworkloadpolicy aiworkloadpolicy-sample
+```
+
+```text
+NAMESPACE      NAME                 MODE      READY   AGE
+production     cicd-agent-policy    Enforce   True    2m
+```
+
+Detailed inspection shows the condition history:
+```bash
+kubectl describe aiworkloadpolicy cicd-agent-policy -n production
 ```
 
 ---
 
-### Option B: Local Development & Contribution
+### Local Development (Kind)
 
-If you are developing or contributing to AegisAI locally:
-
-#### 1. Clone the Repository
+#### 1. Clone and Setup
 ```bash
 git clone https://github.com/KhalidNazih/aegisai.git
 cd aegisai/Kubebuilder
 ```
 
-#### 2. Spin Up a Local Kind Cluster
+#### 2. Create Cluster and Run Operator
 ```bash
 kind create cluster --name aegis-dev
-```
-
-#### 3. Install CRDs & Run Locally
-```bash
-# Generate and install CRDs
 make manifests
 make install
-
-# Run the controller against your local cluster context
 make run
 ```
 
-#### 4. Build and Push Container Images
+#### 3. Build Container Images
 ```bash
-make docker-build docker-push IMG=myregistry/aegisai-controller:latest
-make deploy IMG=myregistry/aegisai-controller:latest
+make docker-build docker-push IMG=myregistry/aegisai-controller:v1.0.0
+make deploy IMG=myregistry/aegisai-controller:v1.0.0
 ```
 
 ---
 
-## Roadmap
+## Observability & Metrics
 
-- [x] **Core Operator Architecture:** Custom Resource Definition (`AIWorkloadPolicy`) and reconciliation engine.
-- [x] **Status Condition Reporting:** Native Kubernetes condition framework (`Ready`, `Degraded`, `PolicyActive`).
-- [ ] **Dynamic Policy Enforcement:** Automated generation of NetworkPolicies, RBAC boundaries, and Kyverno rules.
-- [ ] **MCP & Tool Authorization Gateway:** Native interceptor for Model Context Protocol (MCP) tool execution.
-- [ ] **Runtime Threat Telemetry:** eBPF-based event correlation and container containment via Tetragon.
-- [ ] **GitOps & Drift Engine:** Automated detection of manual permission tampering and drift reporting via Argo CD.
-- [ ] **Multi-Cloud Workload Identity:** Deep integration with AWS IAM Roles for Service Accounts (IRSA) and SPIFFE/SPIRE.
+AegisAI exports Prometheus metrics on port `:8080/metrics`:
+
+| Metric Name | Type | Description |
+| :--- | :--- | :--- |
+| `aegisai_policy_reconcile_total` | Counter | Total reconciliation loops executed per policy |
+| `aegisai_tool_call_blocked_total` | Counter | Total unauthorized tool actions blocked |
+| `aegisai_network_violation_total` | Counter | Total blocked egress connection attempts |
+| `aegisai_drift_detected_total` | Counter | Total configuration drift occurrences detected |
+
+Grafana dashboard templates are located in the `dashboards/` directory.
 
 ---
 
@@ -208,13 +205,13 @@ make deploy IMG=myregistry/aegisai-controller:latest
 Contributions, issues, and feature requests are welcome.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/cool-feature`)
-3. Commit your changes (`git commit -m 'feat: add cool feature'`)
-4. Push to the branch (`git push origin feature/cool-feature`)
+2. Create your feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -m 'feat: add my feature'`)
+4. Push to the branch (`git push origin feature/my-feature`)
 5. Open a Pull Request
 
 ---
 
 ## License
 
-AegisAI is licensed under the [Apache 2.0 License](LICENSE).
+AegisAI is open-source software licensed under the [Apache 2.0 License](LICENSE).
