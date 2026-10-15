@@ -1,0 +1,11 @@
+apiVersion: security.aegisai.io/v1alpha1
+kind: AIWorkloadPolicy
+metadata:
+  labels:
+    app.kubernetes.io/name: kubebuilder
+    app.kubernetes.io/managed-by: kustomize
+  name: aiworkloadpolicy-sample
+spec:
+  targetNameSpace: "production"
+  workloadName: "ci-cd-agent"
+  operationalMode: "Enforce"
