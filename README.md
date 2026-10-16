@@ -1,4 +1,6 @@
 <p align="center">
+<img width="250" alt="Gemini_Generated_Image_1x9o241x9o241x9o" src="https://github.com/user-attachments/assets/72dfcbdb-b32b-4b82-b535-71e2109f79b8" />
+
   <h1 align="center">Aegis</h1>
   <p align="center">
     <strong>Kubernetes-Native Security Control Plane for AI Workloads, Autonomous Agents & Tool-Enabled LLMs</strong>
