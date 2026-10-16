@@ -34,3 +34,5 @@ Thumbs.db
 *.log
 tmp/
 scratch/
+*.p
+.github/*
