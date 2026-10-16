@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.22.0
-  name: aiworkloadpolicies.security.aegisai.io
+  name: aiworkloadpolicies.security.aegis.io
 spec:
-  group: security.aegisai.io
+  group: security.aegis.io
   names:
     kind: AIWorkloadPolicy
     listKind: AIWorkloadPolicyList

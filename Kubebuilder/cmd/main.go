@@ -35,8 +35,8 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	securityv1alpha1 "github.com/KhalidNazih/aegisai.git/api/v1alpha1"
-	"github.com/KhalidNazih/aegisai.git/internal/controller"
+	securityv1alpha1 "github.com/KhalidNazih/aegis.git/api/v1alpha1"
+	"github.com/KhalidNazih/aegis.git/internal/controller"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -164,7 +164,7 @@ func main() {
 		WebhookServer:          webhookServer,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "5084ef9b.aegisai.io",
+		LeaderElectionID:       "5084ef9b.aegis.io",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly

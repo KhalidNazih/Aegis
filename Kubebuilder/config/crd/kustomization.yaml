@@ -2,7 +2,7 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-- bases/security.aegisai.io_aiworkloadpolicies.yaml
+- bases/security.aegis.io_aiworkloadpolicies.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patches:

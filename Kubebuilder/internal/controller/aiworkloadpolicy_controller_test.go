@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	securityv1alpha1 "github.com/KhalidNazih/aegisai.git/api/v1alpha1"
+	securityv1alpha1 "github.com/KhalidNazih/aegis.git/api/v1alpha1"
 )
 
 var _ = Describe("AIWorkloadPolicy Controller", func() {

@@ -5,7 +5,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - security.aegisai.io
+  - security.aegis.io
   resources:
   - aiworkloadpolicies
   verbs:
@@ -17,13 +17,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - security.aegisai.io
+  - security.aegis.io
   resources:
   - aiworkloadpolicies/finalizers
   verbs:
   - update
 - apiGroups:
-  - security.aegisai.io
+  - security.aegis.io
   resources:
   - aiworkloadpolicies/status
   verbs:

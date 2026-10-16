@@ -26,7 +26,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	securityv1alpha1 "github.com/KhalidNazih/aegisai.git/api/v1alpha1"
+	securityv1alpha1 "github.com/KhalidNazih/aegis.git/api/v1alpha1"
 )
 
 // AIWorkloadPolicyReconciler reconciles a AIWorkloadPolicy object
@@ -35,9 +35,9 @@ type AIWorkloadPolicyReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=security.aegisai.io,resources=aiworkloadpolicies,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=security.aegisai.io,resources=aiworkloadpolicies/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=security.aegisai.io,resources=aiworkloadpolicies/finalizers,verbs=update
+// +kubebuilder:rbac:groups=security.aegis.io,resources=aiworkloadpolicies,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=security.aegis.io,resources=aiworkloadpolicies/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=security.aegis.io,resources=aiworkloadpolicies/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

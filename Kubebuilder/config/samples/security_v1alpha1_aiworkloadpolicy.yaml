@@ -1,4 +1,4 @@
-apiVersion: security.aegisai.io/v1alpha1
+apiVersion: security.aegis.io/v1alpha1
 kind: AIWorkloadPolicy
 metadata:
   labels:

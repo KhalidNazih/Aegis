@@ -1,4 +1,4 @@
-module github.com/KhalidNazih/aegisai.git
+module github.com/KhalidNazih/aegis.git
 
 go 1.26.0
 

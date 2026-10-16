@@ -1,7 +1,7 @@
 # This rule is not used by the project kubebuilder itself.
 # It is provided to allow the cluster admin to help manage permissions for users.
 #
-# Grants read-only access to security.aegisai.io resources.
+# Grants read-only access to security.aegis.io resources.
 # This role is intended for users who need visibility into these resources
 # without permissions to modify them. It is ideal for monitoring purposes and limited-access viewing.
 
@@ -14,7 +14,7 @@ metadata:
   name: aiworkloadpolicy-viewer-role
 rules:
 - apiGroups:
-  - security.aegisai.io
+  - security.aegis.io
   resources:
   - aiworkloadpolicies
   verbs:
@@ -22,7 +22,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - security.aegisai.io
+  - security.aegis.io
   resources:
   - aiworkloadpolicies/status
   verbs:

@@ -3,19 +3,19 @@
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
 cliVersion: 4.16.0
-domain: aegisai.io
+domain: aegis.io
 layout:
 - go.kubebuilder.io/v4
 projectName: kubebuilder
-repo: github.com/KhalidNazih/aegisai.git
+repo: github.com/KhalidNazih/aegis.git
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: aegisai.io
+  domain: aegis.io
   group: security
   kind: AIWorkloadPolicy
-  path: github.com/KhalidNazih/aegisai.git/api/v1alpha1
+  path: github.com/KhalidNazih/aegis.git/api/v1alpha1
   version: v1alpha1
 version: "3"

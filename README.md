@@ -1,6 +1,6 @@
 <p align="center">
-  <img src=".github/assets/logo.png" width="" alt="AegisAI Logo">
-  <h1 align="center">AegisAI</h1>
+  <img src=".github/assets/logo.png" width="160" alt="Aegis Logo">
+  <h1 align="center">Aegis</h1>
   <p align="center">
     <strong>Kubernetes-Native Security Control Plane for AI Workloads, Autonomous Agents & Tool-Enabled LLMs</strong>
   </p>
@@ -9,7 +9,7 @@
     <a href="https://kubernetes.io"><img src="https://img.shields.io/badge/Kubernetes-1.28+-326CE5?style=flat&logo=kubernetes&logoColor=white" alt="Kubernetes"></a>
     <a href="https://book.kubebuilder.io"><img src="https://img.shields.io/badge/Built%20with-Kubebuilder-000000?style=flat" alt="Kubebuilder"></a>
     <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
-    <a href="https://github.com/KhalidNazih/aegisai/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-success" alt="Release"></a>
+    <a href="https://github.com/KhalidNazih/aegis/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-success" alt="Release"></a>
     <a href="#contributing"><img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg" alt="PRs Welcome"></a>
   </p>
 </p>
@@ -18,14 +18,14 @@
 
 ## Overview
 
-**AegisAI** is a Kubernetes-native security control plane engineered specifically for autonomous AI agents, tool-enabled assistants, RAG pipelines, and LLM inference workloads.
+**Aegis** is a Kubernetes-native security control plane engineered specifically for autonomous AI agents, tool-enabled assistants, RAG pipelines, and LLM inference workloads.
 
 When autonomous agents run inside Kubernetes, traditional security controls fall short:
 * **Kubernetes RBAC** only regulates internal cluster objects, leaving external tool operations and model APIs unmonitored.
 * **NetworkPolicy** restricts IP/CIDR blocks, but cannot evaluate or filter application-level tool actions.
 * **Cloud IAM** grants static permissions without visibility into dynamic agent prompt executions or autonomous tool calls.
 
-AegisAI bridges this gap by introducing a unified **Security Contract** (`AIWorkloadPolicy`). It orchestrates Kubernetes RBAC, egress network boundaries, admission constraints, Model Context Protocol (MCP) tool gateways, and eBPF runtime telemetry under a single, deny-by-default control plane.
+Aegis bridges this gap by introducing a unified **Security Contract** (`AIWorkloadPolicy`). It orchestrates Kubernetes RBAC, egress network boundaries, admission constraints, Model Context Protocol (MCP) tool gateways, and eBPF runtime telemetry under a single, deny-by-default control plane.
 
 ---
 
@@ -46,7 +46,7 @@ AegisAI bridges this gap by introducing a unified **Security Contract** (`AIWork
                                      │
                                      ▼
                         ┌────────────────────────┐
-                        │   AegisAI Controller   │
+                        │    Aegis Controller    │
                         └────────────┬───────────┘
                                      │
          ┌───────────────────────────┼───────────────────────────┐
@@ -86,7 +86,7 @@ Each `AIWorkloadPolicy` operates in one of four granular modes:
 Below is an example of an `AIWorkloadPolicy` declaring approved capabilities for an autonomous CI/CD agent:
 
 ```yaml
-apiVersion: security.aegisai.io/v1alpha1
+apiVersion: security.aegis.io/v1alpha1
 kind: AIWorkloadPolicy
 metadata:
   name: cicd-agent-policy
@@ -126,7 +126,7 @@ spec:
 
 #### 1. Install CRDs and Controller via Kustomize
 ```bash
-kubectl apply -k https://github.com/KhalidNazih/aegisai.git/config/default?ref=main
+kubectl apply -k https://github.com/KhalidNazih/aegis.git/config/default?ref=main
 ```
 
 #### 2. Verify Operator Health
@@ -136,8 +136,8 @@ kubectl get pods -n aegis-system
 
 Expected output:
 ```text
-NAME                                         READY   STATUS    RESTARTS   AGE
-aegisai-controller-manager-7d8b598b9-x2k4l   2/2     Running   0          45s
+NAME                                       READY   STATUS    RESTARTS   AGE
+aegis-controller-manager-7d8b598b9-x2k4l   2/2     Running   0          45s
 ```
 
 #### 3. Apply a Policy
@@ -166,8 +166,8 @@ kubectl describe aiworkloadpolicy cicd-agent-policy -n production
 
 #### 1. Clone and Setup
 ```bash
-git clone https://github.com/KhalidNazih/aegisai.git
-cd aegisai/Kubebuilder
+git clone https://github.com/KhalidNazih/aegis.git
+cd aegis/Kubebuilder
 ```
 
 #### 2. Create Cluster and Run Operator
@@ -180,22 +180,22 @@ make run
 
 #### 3. Build Container Images
 ```bash
-make docker-build docker-push IMG=myregistry/aegisai-controller:v1.0.0
-make deploy IMG=myregistry/aegisai-controller:v1.0.0
+make docker-build docker-push IMG=myregistry/aegis-controller:v1.0.0
+make deploy IMG=myregistry/aegis-controller:v1.0.0
 ```
 
 ---
 
 ## Observability & Metrics
 
-AegisAI exports Prometheus metrics on port `:8080/metrics`:
+Aegis exports Prometheus metrics on port `:8080/metrics`:
 
 | Metric Name | Type | Description |
 | :--- | :--- | :--- |
-| `aegisai_policy_reconcile_total` | Counter | Total reconciliation loops executed per policy |
-| `aegisai_tool_call_blocked_total` | Counter | Total unauthorized tool actions blocked |
-| `aegisai_network_violation_total` | Counter | Total blocked egress connection attempts |
-| `aegisai_drift_detected_total` | Counter | Total configuration drift occurrences detected |
+| `aegis_policy_reconcile_total` | Counter | Total reconciliation loops executed per policy |
+| `aegis_tool_call_blocked_total` | Counter | Total unauthorized tool actions blocked |
+| `aegis_network_violation_total` | Counter | Total blocked egress connection attempts |
+| `aegis_drift_detected_total` | Counter | Total configuration drift occurrences detected |
 
 Grafana dashboard templates are located in the `dashboards/` directory.
 
@@ -215,4 +215,4 @@ Contributions, issues, and feature requests are welcome.
 
 ## License
 
-AegisAI is open-source software licensed under the [Apache 2.0 License](LICENSE).
+Aegis is open-source software licensed under the [Apache 2.0 License](LICENSE).
