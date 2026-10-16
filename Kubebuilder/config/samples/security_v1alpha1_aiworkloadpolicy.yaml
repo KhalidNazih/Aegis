@@ -9,3 +9,12 @@ spec:
   targetNameSpace: "production"
   workloadName: "ci-cd-agent"
   operationalMode: "Enforce"
+  tools:
+   - "github.issues.read"
+   - "github.pull_requests.create"
+  networkEgress:
+   - "api.github.com"
+   - "jira.internal.company"
+  secrets:
+   - "github-token"
+   - "jira-api-key"

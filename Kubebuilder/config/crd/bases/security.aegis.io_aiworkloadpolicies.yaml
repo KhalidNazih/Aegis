@@ -39,10 +39,22 @@ spec:
           spec:
             description: spec defines the desired state of AIWorkloadPolicy
             properties:
+              networkEgress:
+                items:
+                  type: string
+                type: array
               operationalMode:
                 type: string
+              secrets:
+                items:
+                  type: string
+                type: array
               targetNameSpace:
                 type: string
+              tools:
+                items:
+                  type: string
+                type: array
               workloadName:
                 type: string
             required:

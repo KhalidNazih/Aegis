@@ -26,9 +26,12 @@ import (
 
 // AIWorkloadPolicySpec defines the desired state of AIWorkloadPolicy
 type AIWorkloadPolicySpec struct {
-	TargetNameSpace string `json:"targetNameSpace"` // namespace where our ai agent run
-	WorkloadName    string `json:"workloadName"`    // name of ai agent pod/deployment
-	OperationalMode string `json:"operationalMode"` // is it detect moel or enforce mode
+	TargetNameSpace string   `json:"targetNameSpace"`         // namespace where our ai agent run
+	WorkloadName    string   `json:"workloadName"`            // name of ai agent pod/deployment
+	OperationalMode string   `json:"operationalMode"`         // is it detect moel or enforce mode
+	Tools           []string `json:"tools,omitempty"`         // list of actions can the workload perform
+	NetworkEgress   []string `json:"networkEgress,omitempty"` // list of allowed ips to send data to
+	Secrets         []string `json:"secrets,omitempty"`       // list of keys the workload is allowed to touch
 }
 
 // AIWorkloadPolicyStatus defines the observed state of AIWorkloadPolicy.
