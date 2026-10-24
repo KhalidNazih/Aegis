@@ -2,6 +2,7 @@ package authorizer
 
 import (
 	"fmt"
+	"slices"
 
 	securityv1alpha1 "github.com/KhalidNazih/aegis.git/api/v1alpha1"
 )
@@ -33,14 +34,12 @@ func Authorize(req AuthorizationRequest, policy *securityv1alpha1.AIWorkloadPoli
 			WorkloadName: req.WorkloadName,
 			ToolName:     req.RequestedTool}
 	} else {
-		for _, tool := range policy.Spec.Tools {
-			if tool == req.RequestedTool {
-				return AuthorizationDecision{
-					Decision:     true,
-					Reason:       fmt.Sprintf("Tool %s is explicitly approved by policy", req.RequestedTool),
-					WorkloadName: req.WorkloadName,
-					ToolName:     req.RequestedTool}
-			}
+		if slices.Contains(policy.Spec.Tools, req.RequestedTool) {
+			return AuthorizationDecision{
+				Decision:     true,
+				Reason:       fmt.Sprintf("Tool %s is explicitly approved by policy", req.RequestedTool),
+				WorkloadName: req.WorkloadName,
+				ToolName:     req.RequestedTool}
 		}
 		return AuthorizationDecision{
 			Decision: false,

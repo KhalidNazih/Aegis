@@ -6,21 +6,27 @@ import (
 	securityv1alpha1 "github.com/KhalidNazih/aegis.git/api/v1alpha1"
 )
 
+const (
+	testNamespace = "production"
+	testWorkload  = "ci-cd-agent"
+	testToolRead  = "github.issues.read"
+)
+
 func TestAuthorizeApprovedTool(t *testing.T) {
 	policy := &securityv1alpha1.AIWorkloadPolicy{
 		Spec: securityv1alpha1.AIWorkloadPolicySpec{
-			TargetNameSpace: "production",
-			WorkloadName:    "ci-cd-agent",
+			TargetNameSpace: testNamespace,
+			WorkloadName:    testWorkload,
 			OperationalMode: "Enforce",
 			Tools: []string{
-				"github.issues.read",
+				testToolRead,
 			},
 		},
 	}
 	req := AuthorizationRequest{
-		WorkloadName:    "ci-cd-agent",
-		TargetNamespace: "production",
-		RequestedTool:   "github.issues.read",
+		WorkloadName:    testWorkload,
+		TargetNamespace: testNamespace,
+		RequestedTool:   testToolRead,
 	}
 	decision := Authorize(req, policy)
 	if decision.Decision == false {
@@ -31,17 +37,17 @@ func TestAuthorizeApprovedTool(t *testing.T) {
 func TestAuthorizeBlockedTool(t *testing.T) {
 	policy := &securityv1alpha1.AIWorkloadPolicy{
 		Spec: securityv1alpha1.AIWorkloadPolicySpec{
-			TargetNameSpace: "production",
-			WorkloadName:    "ci-cd-agent",
+			TargetNameSpace: testNamespace,
+			WorkloadName:    testWorkload,
 			OperationalMode: "Enforce",
 			Tools: []string{
-				"github.issues.read",
+				testToolRead,
 			},
 		},
 	}
 	req := AuthorizationRequest{
-		WorkloadName:    "ci-cd-agent",
-		TargetNamespace: "production",
+		WorkloadName:    testWorkload,
+		TargetNamespace: testNamespace,
 		RequestedTool:   "github.repository.delete",
 	}
 	decision := Authorize(req, policy)
@@ -53,17 +59,17 @@ func TestAuthorizeBlockedTool(t *testing.T) {
 func TestAuthorizeDetectMode(t *testing.T) {
 	policy := &securityv1alpha1.AIWorkloadPolicy{
 		Spec: securityv1alpha1.AIWorkloadPolicySpec{
-			TargetNameSpace: "production",
-			WorkloadName:    "ci-cd-agent",
+			TargetNameSpace: testNamespace,
+			WorkloadName:    testWorkload,
 			OperationalMode: "Detect",
 			Tools: []string{
-				"github.issues.read",
+				testToolRead,
 			},
 		},
 	}
 	req := AuthorizationRequest{
-		WorkloadName:    "ci-cd-agent",
-		TargetNamespace: "production",
+		WorkloadName:    testWorkload,
+		TargetNamespace: testNamespace,
 		RequestedTool:   "github.repository.delete",
 	}
 	decision := Authorize(req, policy)

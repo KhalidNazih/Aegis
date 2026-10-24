@@ -94,29 +94,29 @@ func (r *AIWorkloadPolicyReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	fmt.Printf("AegisAI detected policy for AI workload %s in mode %s \n", policy.Spec.TargetNameSpace, policy.Spec.OperationalMode)
 
-	//NetworkPolicy
-	desiredNetPol := r.builNetworkPolicy(&policy) //holds the the name the namespace and the egress rule
+	// NetworkPolicy
+	desiredNetPol := r.builNetworkPolicy(&policy) // holds the name the namespace and the egress rule
 	netPolKey := types.NamespacedName{
 		Name:      desiredNetPol.Name,
 		Namespace: desiredNetPol.Namespace,
 	}
 	var existingNetPol networkingv1.NetworkPolicy
 	err = r.Get(ctx, netPolKey, &existingNetPol)
-	if errors.IsNotFound(err) { //Network policy does not exist
-		if err := r.Create(ctx, desiredNetPol); err != nil { //The API server is unreachable or timed out!
+	if errors.IsNotFound(err) { // Network policy does not exist
+		if err := r.Create(ctx, desiredNetPol); err != nil { // The API server is unreachable or timed out!
 			return ctrl.Result{}, err
 		}
 		fmt.Printf("Aegis successfully enforced NetworkPolicy: %s in namespace %s\n", desiredNetPol.Name, desiredNetPol.Namespace)
 	} else if err != nil { // Cluster crashed or connection broke during r.Get!.
 		return ctrl.Result{}, err
 	} else {
-		existingNetPol.Spec.Egress = desiredNetPol.Spec.Egress //If it already exists, update its egress rules to match the latest desired state
+		existingNetPol.Spec.Egress = desiredNetPol.Spec.Egress // If it already exists, update its egress rules to match the latest desired state
 		if err := r.Update(ctx, &existingNetPol); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
 
-	//Update status Condition after reforcing netowrkpolicy
+	// Update status Condition after reforcing netowrkpolicy
 	meta.SetStatusCondition(&policy.Status.Conditions, metav1.Condition{
 		Type:               "Ready",
 		Status:             metav1.ConditionTrue,

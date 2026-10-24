@@ -56,7 +56,7 @@ func (s *Server) HandleAuthorize(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
-	json.NewEncoder(w).Encode(decision)
+	_ = json.NewEncoder(w).Encode(decision)
 }
 func (s *Server) Start(ctx context.Context) error {
 	mux := http.NewServeMux()

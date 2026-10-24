@@ -192,7 +192,7 @@ func main() {
 	// +kubebuilder:scaffold:builder
 	if err := mgr.Add(&gateway.Server{
 		Client:   mgr.GetClient(),
-		Recorder: mgr.GetEventRecorderFor("aegis-gateway"),
+		Recorder: mgr.GetEventRecorderFor("aegis-gateway"), //nolint:staticcheck
 	}); err != nil {
 		setupLog.Error(err, "Failed to set up gateway server")
 		os.Exit(1)
