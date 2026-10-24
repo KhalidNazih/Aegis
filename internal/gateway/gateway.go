@@ -56,7 +56,6 @@ func (s *Server) HandleAuthorize(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(decision)
 }
 func (s *Server) Start(ctx context.Context) error {

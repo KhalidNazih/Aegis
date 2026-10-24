@@ -54,7 +54,11 @@ var _ = Describe("AIWorkloadPolicy Controller", func() {
 						Name:      resourceName,
 						Namespace: resourceNamespace,
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: securityv1alpha1.AIWorkloadPolicySpec{
+						TargetNameSpace: resourceNamespace,
+						WorkloadName:    "test-workload",
+						OperationalMode: "Enforce",
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
