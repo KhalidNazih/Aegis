@@ -41,3 +41,4 @@ __pycache__/
 *.pyc
 *.pyo
 get_helm.sh
+*.png
