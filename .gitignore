@@ -37,3 +37,7 @@ scratch/
 *.p
 stages.txt
 notes.txt
+__pycache__/
+*.pyc
+*.pyo
+get_helm.sh
