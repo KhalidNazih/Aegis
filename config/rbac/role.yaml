@@ -12,6 +12,18 @@ rules:
   - create
   - patch
 - apiGroups:
+  - cilium.io
+  resources:
+  - tracingpoliciesnamespaced
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - networking.k8s.io
   resources:
   - networkpolicies

@@ -201,6 +201,20 @@ Demo complete. Check cluster alarms with: kubectl get events
 kubectl get events --field-selector reason=UnauthorizedToolCall
 ```
 
+### 4. Verify eBPF Runtime Sandboxing (Tetragon)
+When an agent attempts to bypass application-level controls by spawning unauthorized interactive shells or file-dumping utilities, Aegis's synthesized Tetragon eBPF policy terminates the process directly in the Linux kernel:
+
+```bash
+# Attempt to spawn an unapproved shell or inspection tool inside the agent pod:
+kubectl exec -it test-agent -n production -- /bin/sh
+```
+
+Expected output:
+```text
+exec /bin/sh: errno 0
+command terminated with exit code 255
+```
+
 ---
 
 ### Production Cluster Deployment

@@ -26,9 +26,12 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -36,7 +39,8 @@ import (
 // AIWorkloadPolicyReconciler reconciles a AIWorkloadPolicy object
 type AIWorkloadPolicyReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 func (r *AIWorkloadPolicyReconciler) builNetworkPolicy(policy *securityv1alpha1.AIWorkloadPolicy) *networkingv1.NetworkPolicy {
@@ -78,7 +82,162 @@ func (r *AIWorkloadPolicyReconciler) builNetworkPolicy(policy *securityv1alpha1.
 		},
 	}
 }
+func (r *AIWorkloadPolicyReconciler) buildTracingPolicy(policy *securityv1alpha1.AIWorkloadPolicy) *unstructured.Unstructured {
+	tp := &unstructured.Unstructured{}
+	tp.Object = make(map[string]any)
+	tp.SetGroupVersionKind(schema.GroupVersionKind{Group: "cilium.io",
+		Version: "v1alpha1",
+		Kind:    "TracingPolicyNamespaced",
+	})
+	tp.SetName(policy.Spec.WorkloadName + "-runtime-guard")
+	tp.SetNamespace(policy.Spec.TargetNameSpace)
+	tp.Object["spec"] = map[string]any{
+		"podSelector": map[string]any{
+			"matchLabels": map[string]any{
+				"app": policy.Spec.WorkloadName,
+			},
+		},
+		"kprobes": []any{
+			// Probe 1: Block unauthorized process execution (shells, network tools, inspection binaries)
+			map[string]any{
+				"call":    "sys_execve",
+				"syscall": true,
+				"args": []any{
+					map[string]any{"index": 0, "type": "string"},
+				},
+				"selectors": []any{
+					map[string]any{
+						"matchArgs": []any{
+							map[string]any{
+								"index":    0,
+								"operator": "Equal",
+								"values": []any{
+									// Shells
+									"/bin/sh",
+									"/bin/bash",
+									"/bin/ash",
+									"/bin/dash",
+									"/bin/zsh",
+									"/bin/busybox",
 
+									// File inspection & exfiltration tools
+									"/usr/bin/cat",
+									"/bin/cat",
+									"/usr/bin/head",
+									"/bin/head",
+									"/usr/bin/tail",
+									"/bin/tail",
+									"/usr/bin/more",
+									"/bin/more",
+									"/usr/bin/less",
+									"/usr/bin/base64",
+									"/bin/base64",
+
+									// Network download & reverse shell tools
+									"/usr/bin/curl",
+									"/bin/curl",
+									"/usr/bin/wget",
+									"/bin/wget",
+									"/usr/bin/nc",
+									"/bin/nc",
+									"/usr/bin/ncat",
+									"/usr/bin/socat",
+								},
+							},
+						},
+						"matchActions": []any{
+							map[string]any{"action": "Override"},
+						},
+					},
+				},
+			},
+			// Probe 2: Block unauthorized access to Kubernetes service account tokens & shadow files
+			map[string]any{
+				"call":    "sys_openat",
+				"syscall": true,
+				"args": []any{
+					map[string]any{"index": 1, "type": "string"},
+				},
+				"selectors": []any{
+					map[string]any{
+						"matchArgs": []any{
+							map[string]any{
+								"index":    1,
+								"operator": "Prefix",
+								"values": []any{
+									"/var/run/secrets/kubernetes.io/serviceaccount/",
+									"/run/secrets/kubernetes.io/serviceaccount/",
+									"/var/run/secrets/kubernetes.io/",
+									"/run/secrets/kubernetes.io/",
+									"/etc/shadow",
+									"/etc/vault-tokens",
+								},
+							},
+						},
+						"matchActions": []any{
+							map[string]any{"action": "Sigkill"},
+						},
+					},
+				},
+			},
+			map[string]any{
+				"call":    "sys_openat2",
+				"syscall": true,
+				"args": []any{
+					map[string]any{"index": 1, "type": "string"},
+				},
+				"selectors": []any{
+					map[string]any{
+						"matchArgs": []any{
+							map[string]any{
+								"index":    1,
+								"operator": "Prefix",
+								"values": []any{
+									"/var/run/secrets/kubernetes.io/serviceaccount/",
+									"/run/secrets/kubernetes.io/serviceaccount/",
+									"/var/run/secrets/kubernetes.io/",
+									"/run/secrets/kubernetes.io/",
+									"/etc/shadow",
+									"/etc/vault-tokens",
+								},
+							},
+						},
+						"matchActions": []any{
+							map[string]any{"action": "Sigkill"},
+						},
+					},
+				},
+			},
+			// Probe 3: Block privilege escalation to root (setuid 0)
+			map[string]any{
+				"call":    "sys_setuid",
+				"syscall": true,
+				"args": []any{
+					map[string]any{"index": 0, "type": "int"},
+				},
+				"selectors": []any{
+					map[string]any{
+						"matchArgs": []any{
+							map[string]any{
+								"index":    0,
+								"operator": "Equal",
+								"values": []any{
+									"0",
+								},
+							},
+						},
+						"matchActions": []any{
+							map[string]any{"action": "Override"},
+						},
+					},
+				},
+			},
+		},
+	}
+	return tp
+}
+
+// +kubebuilder:rbac:groups=cilium.io,resources=tracingpoliciesnamespaced,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=security.aegis.io,resources=aiworkloadpolicies,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=security.aegis.io,resources=aiworkloadpolicies/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=security.aegis.io,resources=aiworkloadpolicies/finalizers,verbs=update
@@ -112,6 +271,33 @@ func (r *AIWorkloadPolicyReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	} else {
 		existingNetPol.Spec.Egress = desiredNetPol.Spec.Egress // If it already exists, update its egress rules to match the latest desired state
 		if err := r.Update(ctx, &existingNetPol); err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	// Tetragon Runtime Security Enforcement
+	desiredTP := r.buildTracingPolicy(&policy)
+	tpKey := types.NamespacedName{
+		Name:      desiredTP.GetName(),
+		Namespace: desiredTP.GetNamespace(),
+	}
+	existingTP := &unstructured.Unstructured{}
+	existingTP.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "cilium.io",
+		Version: "v1alpha1",
+		Kind:    "TracingPolicyNamespaced",
+	})
+	err = r.Get(ctx, tpKey, existingTP)
+	if errors.IsNotFound(err) {
+		if err := r.Create(ctx, desiredTP); err != nil {
+			return ctrl.Result{}, err
+		}
+		fmt.Printf("Aegis successfully enforced Tetragon TracingPolicy: %s in namespace %s\n", desiredTP.GetName(), desiredTP.GetNamespace())
+	} else if err != nil {
+		return ctrl.Result{}, err
+	} else {
+		desiredTP.SetResourceVersion(existingTP.GetResourceVersion())
+		if err := r.Update(ctx, desiredTP); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
